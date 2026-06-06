@@ -15,6 +15,12 @@
     "codex-zh-localizer": "./bin/codex-zh.mjs",
     "codex-zh": "./bin/codex-zh.mjs"
   },
+  "files": [
+    "README.en.md",
+    "assets/",
+    "bin/",
+    "docs/"
+  ],
   "scripts": {
     "check": "node --check bin/codex-zh.mjs && node --check bin/codex-zh-audit.mjs && node --check bin/codex-zh-smoke-test.mjs && node --check bin/codex-plugin-marketplace-zh.mjs && node --check bin/codex-plugin-components-zh.mjs && node --check bin/codex-skill-md-zh.mjs",
     "audit": "node bin/codex-zh.mjs audit",

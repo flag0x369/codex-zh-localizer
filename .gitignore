@@ -1,6 +1,10 @@
 node_modules/
 npm-debug.log*
 .DS_Store
+.env
+.env.*
+*.pem
+*.key
 codex-plugin-marketplace-zh-backups/
 coverage/
 dist/
