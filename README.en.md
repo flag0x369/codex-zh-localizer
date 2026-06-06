@@ -28,7 +28,7 @@ Codex has a growing plugin marketplace, but plugin names, skill descriptions, an
 | --- | --- |
 | Plugin marketplace cards are in English | Localizes plugin names, summaries, details, and example prompts |
 | Plugin detail skills are hard to scan | Localizes skill names, descriptions, and default prompts |
-| Skill picker descriptions are still English | Localizes `SKILL.md` frontmatter `description` while preserving `name` and body |
+| Skill picker descriptions are still English | Localizes display descriptions in `SKILL.md` and `agents/openai.yaml` while preserving `name` and body |
 | App connector descriptions are English | Localizes app names and connector descriptions |
 | Codex updates or new skills reset metadata | Rerun `apply` to relocalize supported metadata |
 | You care about safety | Dry-run by default, backups before writes, restore commands included |
@@ -69,7 +69,7 @@ npx --yes github:flag0x369/codex-zh-localizer apply
 | --- | --- | --- |
 | Plugin marketplace cards | Yes | `plugin.json` and marketplace JSON |
 | Plugin detail skills | Yes | `skills/*/agents/openai.yaml` |
-| Skill picker descriptions | Yes | `SKILL.md` frontmatter `description` |
+| Skill picker descriptions | Yes | `SKILL.md` frontmatter `description` / `metadata.short-description` and `agents/openai.yaml` `short_description` |
 | Plugin detail apps | Yes | app connector directory cache |
 | Built-in Codex frontend buttons and menus | Not yet | Usually inside app bundle / `app.asar` |
 | Skill `name`, body, brand names, commands, API keys | Preserved | Avoid changing Codex skill triggering, execution, and config |
@@ -79,8 +79,8 @@ Example audit result:
 ```text
 pluginJson: 190/190 localized
 marketplaceJson: 3/3 localized
-skillYaml: 563/563 localized
-skillMd: 617/617 localized
+skillYaml: 607/607 localized
+skillMd: 656/656 localized
 appConnectors: 140/140 localized
 ```
 
@@ -102,7 +102,7 @@ npx --yes github:flag0x369/codex-zh-localizer restore-marketplace latest
 # Restore the latest component backup
 npx --yes github:flag0x369/codex-zh-localizer restore-components latest
 
-# Restore the latest SKILL.md description backup
+# Restore the latest skill-description backup
 npx --yes github:flag0x369/codex-zh-localizer restore-skill-md latest
 ```
 

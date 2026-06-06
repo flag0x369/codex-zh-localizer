@@ -29,6 +29,7 @@ Codex Zh Localizer 的目标是中文化 Codex 插件相关的本地元数据，
 | `~/.codex/cache/codex_app_directory` | 应用连接器目录缓存 |
 | `~/.codex/skills/**/SKILL.md` | 用户和系统技能描述 |
 | `.codex/skills/**/SKILL.md` | 当前项目技能描述 |
+| `**/skills/**/agents/openai.yaml` | 技能列表和插件详情页技能展示描述 |
 
 这些路径可能随 Codex 版本变化。请以 `audit` 输出为准。
 
@@ -66,7 +67,7 @@ npx --yes github:flag0x369/codex-zh-localizer restore-marketplace latest
 npx --yes github:flag0x369/codex-zh-localizer restore-components latest
 ```
 
-恢复最近一次 `SKILL.md` 描述补丁：
+恢复最近一次技能描述补丁：
 
 ```bash
 npx --yes github:flag0x369/codex-zh-localizer restore-skill-md latest
@@ -92,4 +93,4 @@ Codex Zh Localizer localizes Codex plugin metadata while keeping changes auditab
 
 It does not modify `/Applications/Codex.app`, `app.asar`, app signing assets, credentials, background services, shell startup files, system settings, skill `name`, or skill body instructions.
 
-It only writes to local plugin metadata caches and creates backups before applying changes. Use `dry-run` and `audit --strict` before `apply`, and use the restore commands if you need to roll back.
+It only writes to local plugin and skill metadata caches, including `SKILL.md` descriptions and `skills/**/agents/openai.yaml` display descriptions, and creates backups before applying changes. Use `dry-run` and `audit --strict` before `apply`, and use the restore commands if you need to roll back.
