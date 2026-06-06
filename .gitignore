@@ -1,0 +1,6 @@
+node_modules/
+npm-debug.log*
+.DS_Store
+codex-plugin-marketplace-zh-backups/
+coverage/
+dist/

@@ -1,0 +1,35 @@
+{
+  "name": "codex-zh-localizer",
+  "version": "0.1.0",
+  "description": "Unofficial local Chinese metadata localizer for Codex plugins and plugin details.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flag0x369/codex-zh-localizer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flag0x369/codex-zh-localizer/issues"
+  },
+  "homepage": "https://github.com/flag0x369/codex-zh-localizer#readme",
+  "bin": {
+    "codex-zh-localizer": "./bin/codex-zh.mjs",
+    "codex-zh": "./bin/codex-zh.mjs"
+  },
+  "scripts": {
+    "check": "node --check bin/codex-zh.mjs && node --check bin/codex-zh-audit.mjs && node --check bin/codex-zh-smoke-test.mjs && node --check bin/codex-plugin-marketplace-zh.mjs && node --check bin/codex-plugin-components-zh.mjs",
+    "audit": "node bin/codex-zh.mjs audit",
+    "dry-run": "node bin/codex-zh.mjs dry-run",
+    "apply": "node bin/codex-zh.mjs apply",
+    "smoke": "node bin/codex-zh-smoke-test.mjs"
+  },
+  "keywords": [
+    "codex",
+    "localization",
+    "chinese",
+    "plugins"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
