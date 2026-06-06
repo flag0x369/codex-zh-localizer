@@ -70,6 +70,10 @@ function hasCjk(value) {
   return typeof value === "string" && /[\u3400-\u9fff]/.test(value);
 }
 
+function isLocalizedDisplayText(value) {
+  return hasCjk(value) && !/\bOriginal:/.test(String(value || ""));
+}
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
@@ -213,7 +217,7 @@ function auditSkills() {
       filePath,
       skill,
       displayName: yamlScalar(text, "display_name"),
-      localized: hasCjk(yamlScalar(text, "short_description")),
+      localized: isLocalizedDisplayText(yamlScalar(text, "short_description")),
     });
   }
   return summarize("skillYaml", items);
@@ -236,7 +240,8 @@ function auditSkillMd() {
       items.push({
         filePath,
         skill: name || path.basename(path.dirname(filePath)),
-        localized: hasCjk(description) && shortDescriptions.every((value) => hasCjk(value)),
+        localized: isLocalizedDisplayText(description) &&
+          shortDescriptions.every((value) => isLocalizedDisplayText(value)),
       });
     } catch (error) {
       items.push({ filePath, skill: path.basename(path.dirname(filePath)), localized: false, error: error.message });

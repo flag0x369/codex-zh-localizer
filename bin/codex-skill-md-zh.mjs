@@ -409,17 +409,19 @@ function inferDescription(name, description) {
 }
 
 function localizeDescription(name, description) {
-  const cleanDescription = String(description || "").replace(/\s+/g, " ").trim();
+  const rawDescription = String(description || "");
+  const originalMatch = rawDescription.match(/\bOriginal:\s*(.*)$/s);
+  const cleanDescription = (originalMatch ? originalMatch[1] : rawDescription).replace(/\s+/g, " ").trim();
   const translated = descriptionTranslations[name] ||
     translateWithPhrases(cleanDescription) ||
     inferDescription(name, cleanDescription);
-  if (!cleanDescription) return translated;
-  if (cleanDescription.includes("Original:")) return translated;
-  return `${translated} Original: ${cleanDescription}`;
+  return translated;
 }
 
 function localizeShortDescription(name, description) {
-  const cleanDescription = String(description || "").replace(/\s+/g, " ").trim();
+  const rawDescription = String(description || "");
+  const originalMatch = rawDescription.match(/\bOriginal:\s*(.*)$/s);
+  const cleanDescription = (originalMatch ? originalMatch[1] : rawDescription).replace(/\s+/g, " ").trim();
   return shortDescriptionTranslations[name] ||
     descriptionTranslations[name] ||
     translateWithPhrases(cleanDescription) ||
@@ -468,12 +470,12 @@ function planSkillMdFile(filePath) {
   let nextDescription = description;
   let nextShortDescription = shortDescription;
 
-  if (description && (force || !hasCjk(description))) {
+  if (description && (force || !hasCjk(description) || /\bOriginal:/.test(description))) {
     nextDescription = localizeDescription(name, description);
     nextFrontmatter = setFrontmatterValue(nextFrontmatter, "description", nextDescription);
   }
 
-  if (shortDescription && (force || !hasCjk(shortDescription))) {
+  if (shortDescription && (force || !hasCjk(shortDescription) || /\bOriginal:/.test(shortDescription))) {
     nextShortDescription = localizeShortDescription(name, shortDescription);
     nextFrontmatter = setNestedShortDescription(nextFrontmatter, nextShortDescription);
   }

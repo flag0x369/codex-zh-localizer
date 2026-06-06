@@ -47,6 +47,10 @@ function hasCjk(value) {
   return /[\u3400-\u9fff]/.test(String(value));
 }
 
+function hasOriginalSuffix(value) {
+  return /\bOriginal:/.test(String(value));
+}
+
 try {
   const pluginRoot = path.join(fakeHome, ".codex", ".tmp", "plugins", "plugins", "github");
   const pluginJsonPath = path.join(pluginRoot, ".codex-plugin", "plugin.json");
@@ -133,6 +137,7 @@ try {
   assert(hasCjk(localizedSkill), "skill YAML should contain Chinese");
   assert(hasCjk(localizedVendorSkill), "vendor skill YAML should contain Chinese");
   assert(hasCjk(localizedSkillMd), "SKILL.md description should contain Chinese");
+  assert(!hasOriginalSuffix(localizedSkillMd), "SKILL.md description should not expose Original suffix");
   assert(hasCjk(localizedApp.connectors[0].description), "connector description should be Chinese");
 
   run(["restore-marketplace", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
