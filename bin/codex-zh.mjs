@@ -20,21 +20,21 @@ function usage() {
 Codex 中文化统一入口
 
 用法:
-  node scripts/codex-zh.mjs audit
-  node scripts/codex-zh.mjs dry-run
-  node scripts/codex-zh.mjs apply
-  node scripts/codex-zh.mjs restore-marketplace latest
-  node scripts/codex-zh.mjs restore-components latest
+  codex-zh-localizer audit
+  codex-zh-localizer dry-run
+  codex-zh-localizer apply
+  codex-zh-localizer restore-marketplace latest
+  codex-zh-localizer restore-components latest
 
 常用:
   # Codex 更新或缓存刷新后，重新中文化支持范围内的元数据
-  node scripts/codex-zh.mjs apply
+  codex-zh-localizer apply
 
   # 只检查覆盖率，不写入
-  node scripts/codex-zh.mjs audit --strict
+  codex-zh-localizer audit --strict
 
   # 对临时 HOME 做测试
-  node scripts/codex-zh.mjs apply --home /tmp/fake-home --backup-root /tmp/backups
+  codex-zh-localizer apply --home /tmp/fake-home --backup-root /tmp/backups
 `);
 }
 
