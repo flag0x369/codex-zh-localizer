@@ -1,28 +1,33 @@
-# Codex Zh Localizer
+# Codex Zh Localizer / Codex 中文化工具
 
 [简体中文](README.md) | **English**
 
-Localize safe, local Codex plugin metadata into Chinese. Unofficial, auditable, reversible, and it does not modify the Codex app bundle.
+[![License: MIT](https://img.shields.io/badge/License-MIT-111827.svg)](LICENSE)
+![Node >=18](https://img.shields.io/badge/Node-%3E%3D18-0F766E.svg)
+![Dry-run first](https://img.shields.io/badge/Safety-dry--run_first-2563EB.svg)
+![No app.asar patch](https://img.shields.io/badge/Codex-no_app.asar_patch-7C3AED.svg)
+
+Codex Zh Localizer is an unofficial OpenAI Codex Chinese localization CLI. It localizes Codex plugin marketplace cards, plugin detail skills, and app connector descriptions into Simplified Chinese while only touching reversible local plugin metadata caches.
+
+It targets users searching for Codex Chinese localization, OpenAI Codex plugin marketplace localization, Codex zh-CN, and Codex plugin metadata translation.
+
+![Codex Zh Localizer preview](assets/codex-zh-localizer-cover.svg)
 
 ```bash
 npx --yes github:flag0x369/codex-zh-localizer dry-run
 npx --yes github:flag0x369/codex-zh-localizer apply
 ```
 
-## Why
+## What It Solves
 
-Codex has a growing plugin marketplace, but many plugin, skill, and connector descriptions are still in English. For Chinese users, the main friction is often not using Codex itself, but understanding what each plugin does.
+Codex has a growing plugin marketplace, but plugin names, skill descriptions, and app connector copy are often still in English. This tool makes the plugin marketplace easier to scan for Chinese users while keeping the safety boundary explicit.
 
-This tool solves that narrow problem: make supported plugin marketplace metadata, plugin detail skills, and app connector descriptions readable in Chinese without touching Codex signing, updates, or app internals.
-
-## Who It Is For
-
-| Scenario | What you get |
+| Problem | What this tool does |
 | --- | --- |
-| Plugin marketplace text is mostly English | Chinese plugin names, summaries, details, and example prompts |
-| Skill lists are hard to scan | Chinese skill names, descriptions, and default prompts |
-| App connector descriptions are English | Chinese app names and connector descriptions |
-| Codex updates reset the cache | Rerun `apply` to relocalize supported metadata |
+| Plugin marketplace cards are in English | Localizes plugin names, summaries, details, and example prompts |
+| Plugin detail skills are hard to scan | Localizes skill names, descriptions, and default prompts |
+| App connector descriptions are English | Localizes app names and connector descriptions |
+| Codex updates reset plugin caches | Rerun `apply` to relocalize supported metadata |
 | You care about safety | Dry-run by default, backups before writes, restore commands included |
 
 ## 30-Second Start
@@ -57,17 +62,15 @@ npx --yes github:flag0x369/codex-zh-localizer apply
 
 ## Supported Scope
 
-Default scan targets:
+| Target | Supported | Notes |
+| --- | --- | --- |
+| Plugin marketplace cards | Yes | `plugin.json` and marketplace JSON |
+| Plugin detail skills | Yes | `skills/*/agents/openai.yaml` |
+| Plugin detail apps | Yes | app connector directory cache |
+| Built-in Codex frontend buttons and menus | Not yet | Usually inside app bundle / `app.asar` |
+| Brand names, commands, API keys | Preserved | Avoid corrupting recognizable names and config |
 
-| Type | Path |
-| --- | --- |
-| Official plugin cache | `~/.codex/.tmp/plugins` |
-| OpenAI bundled marketplace cache | `~/.codex/.tmp/bundled-marketplaces/openai-bundled` |
-| Primary runtime plugin cache | `~/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime` |
-| Installed plugin cache | `~/.codex/plugins/cache` |
-| App connector directory cache | `~/.codex/cache/codex_app_directory` |
-
-Example audit result on a fully localized machine:
+Example audit result:
 
 ```text
 pluginJson: 190/190 localized
@@ -109,24 +112,48 @@ npx --yes github:flag0x369/codex-zh-localizer audit --strict
 
 This tool does not:
 
-- modify `/Applications/Codex.app`
-- modify `app.asar`
-- modify signing assets, system settings, shell startup files, or user credentials
-- read or print tokens, cookies, private keys, or passwords
-- install LaunchAgent, cron, shell hooks, or background services by default
+| It does not | Why |
+| --- | --- |
+| Modify `/Applications/Codex.app` | Avoid breaking app signing and updates |
+| Modify `app.asar` | Avoid integrity issues |
+| Read tokens, cookies, private keys, or passwords | It does not touch credentials |
+| Install background services | No LaunchAgent, cron, or shell hook by default |
+| Translate brand names or commands | Avoid corrupting recognizable names and config |
 
-It only patches local plugin metadata caches and creates restore backups before every write.
+Every `apply` creates backups first. `restore-marketplace` and `restore-components` restore by patch type, so backup streams do not get mixed.
 
 ## Why Not Patch app.asar
 
-Codex built-in frontend UI text lives inside app bundle resources, including `app.asar`. Patching the app bundle can affect:
-
-- macOS app signing
-- Codex auto-updates
-- integrity checks
-- recoverability after upgrades
+Codex built-in frontend UI text lives inside app bundle resources, including `app.asar`. Patching the app bundle can affect macOS app signing, Codex auto-updates, integrity checks, and recoverability after upgrades.
 
 This project intentionally takes the safer path: localize reversible plugin marketplace, skill, and app connector metadata only.
+
+## FAQ
+
+### Is this an official language pack?
+
+No. This is an unofficial local tool for safely localizing Codex plugin-related metadata.
+
+### Will localization survive Codex updates?
+
+Codex updates may refresh plugin caches and overwrite localized metadata. Rerun `apply` to relocalize supported metadata.
+
+### Can this break Codex?
+
+The tool defaults to dry-run and writes only to local plugin metadata caches after creating backups. It does not modify the Codex app bundle.
+
+### Can I restore changes?
+
+Yes:
+
+```bash
+npx --yes github:flag0x369/codex-zh-localizer restore-marketplace latest
+npx --yes github:flag0x369/codex-zh-localizer restore-components latest
+```
+
+### Why is some text still English?
+
+Brand names, commands, API names, paths, and config keys are preserved. Built-in Codex frontend UI and remote copy are outside the current safe patch scope.
 
 ## Development
 
