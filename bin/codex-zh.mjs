@@ -13,6 +13,7 @@ const scripts = {
   audit: path.join(scriptDir, "codex-zh-audit.mjs"),
   marketplace: path.join(scriptDir, "codex-plugin-marketplace-zh.mjs"),
   components: path.join(scriptDir, "codex-plugin-components-zh.mjs"),
+  skillMd: path.join(scriptDir, "codex-skill-md-zh.mjs"),
 };
 
 function usage() {
@@ -25,6 +26,7 @@ Codex 中文化统一入口
   codex-zh-localizer apply
   codex-zh-localizer restore-marketplace latest
   codex-zh-localizer restore-components latest
+  codex-zh-localizer restore-skill-md latest
 
 常用:
   # Codex 更新或缓存刷新后，重新中文化支持范围内的元数据
@@ -61,15 +63,19 @@ if (command === "audit" || command === "status") {
 } else if (command === "dry-run") {
   run("插件卡片 dry-run", scripts.marketplace, ["--dry-run", ...passthrough]);
   run("详情组件 dry-run", scripts.components, ["--dry-run", ...passthrough]);
+  run("技能描述 dry-run", scripts.skillMd, ["--dry-run", ...passthrough]);
   run("审计覆盖率", scripts.audit, passthrough);
 } else if (command === "apply") {
   run("插件卡片中文化", scripts.marketplace, ["--apply", ...passthrough]);
   run("详情组件中文化", scripts.components, ["--apply", ...passthrough]);
+  run("技能描述中文化", scripts.skillMd, ["--apply", ...passthrough]);
   run("审计覆盖率", scripts.audit, ["--strict", ...passthrough]);
 } else if (command === "restore-marketplace") {
   run("恢复插件卡片备份", scripts.marketplace, ["--restore", passthrough[0] || "latest", ...passthrough.slice(1)]);
 } else if (command === "restore-components") {
   run("恢复详情组件备份", scripts.components, ["--restore", passthrough[0] || "latest", ...passthrough.slice(1)]);
+} else if (command === "restore-skill-md") {
+  run("恢复技能描述备份", scripts.skillMd, ["--restore", passthrough[0] || "latest", ...passthrough.slice(1)]);
 } else {
   console.error(`未知命令：${command}`);
   usage();

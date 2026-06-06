@@ -1,0 +1,48 @@
+name: Translation request
+description: Suggest a missing or better Simplified Chinese translation.
+title: "[Translation]: "
+labels:
+  - translation
+body:
+  - type: textarea
+    id: original
+    attributes:
+      label: Original text
+      description: Paste the English plugin, skill, app connector, or prompt text.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested Chinese translation
+      description: Keep brand names, commands, API names, paths, and config keys in their original language.
+      render: text
+    validations:
+      required: false
+  - type: dropdown
+    id: target
+    attributes:
+      label: Where does it appear?
+      options:
+        - Plugin marketplace card
+        - Plugin detail skill
+        - Plugin detail app connector
+        - Example prompt
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Add enough surrounding text to avoid mistranslation. Remove private information first.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed tokens, cookies, private paths, account names, raw screenshots, and other sensitive data.
+          required: true

@@ -12,6 +12,7 @@ function argValue(name) {
 
 const args = new Set(rawArgs);
 const homeDir = path.resolve(argValue("--home") || process.env.CODEX_ZH_HOME || os.homedir());
+const projectRoot = path.resolve(argValue("--project-root") || process.env.CODEX_ZH_PROJECT_ROOT || process.cwd());
 const asJson = args.has("--json");
 const strict = args.has("--strict");
 
@@ -25,6 +26,16 @@ const roots = [
 const appDirectory = path.join(homeDir, ".codex", "cache", "codex_app_directory");
 const codexAppResources = "/Applications/Codex.app/Contents/Resources";
 
+const skillRoots = [
+  path.join(homeDir, ".codex", "skills"),
+  path.join(projectRoot, ".codex", "skills"),
+  path.join(homeDir, ".codex", "plugins", "cache"),
+  path.join(homeDir, ".codex", "vendor_imports", "skills"),
+  path.join(homeDir, ".codex", ".tmp", "plugins"),
+  path.join(homeDir, ".codex", ".tmp", "bundled-marketplaces", "openai-bundled"),
+  path.join(homeDir, ".cache", "codex-runtimes", "codex-primary-runtime", "plugins", "openai-primary-runtime"),
+];
+
 function usage() {
   console.log(`
 Codex 中文化覆盖率审计
@@ -37,7 +48,7 @@ Codex 中文化覆盖率审计
 
 说明:
   只读扫描，不修改任何 Codex 文件。
-  统计插件卡片 JSON、技能 YAML、应用连接器缓存的中文覆盖情况。
+  统计插件卡片 JSON、技能 agents/openai.yaml、SKILL.md 描述、应用连接器缓存的中文覆盖情况。
 `);
 }
 
@@ -80,6 +91,52 @@ function walk(dir, predicate, out = []) {
 function yamlScalar(text, key) {
   const match = text.match(new RegExp(`^\\s*${key}:\\s*["']?([^"'\\n]*)["']?\\s*$`, "m"));
   return match ? match[1].trim() : "";
+}
+
+function parseFrontmatter(text) {
+  const open = text.match(/^---\r?\n/);
+  if (!open) return null;
+  const start = open[0].length;
+  const rest = text.slice(start);
+  const endMatch = rest.match(/\r?\n---(?:\r?\n|$)/);
+  if (!endMatch || endMatch.index == null) return null;
+  return text.slice(start, start + endMatch.index);
+}
+
+function unquoteYamlScalar(value) {
+  const trimmed = value.trim();
+  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+    return trimmed.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+  }
+  return trimmed;
+}
+
+function frontmatterValue(content, key) {
+  const lines = content.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i += 1) {
+    const match = lines[i].match(new RegExp(`^${key}:\\s*(.*)$`));
+    if (!match) continue;
+    const rest = match[1] || "";
+    if (rest.trim() === "|" || rest.trim() === ">") {
+      const block = [];
+      for (let j = i + 1; j < lines.length; j += 1) {
+        if (/^[A-Za-z0-9_-]+:\s*/.test(lines[j])) break;
+        block.push(lines[j].replace(/^ {2}/, ""));
+      }
+      return block.join("\n").trim();
+    }
+    return unquoteYamlScalar(rest);
+  }
+  return "";
+}
+
+function frontmatterShortDescriptions(content) {
+  const values = [];
+  for (const line of content.split(/\r?\n/)) {
+    const match = line.match(/^\s*short[-_]description:\s*(.*)$/);
+    if (match) values.push(unquoteYamlScalar(match[1] || ""));
+  }
+  return values;
 }
 
 function summarize(name, items) {
@@ -141,7 +198,7 @@ function auditMarketplaceJson() {
 }
 
 function auditSkills() {
-  const files = roots.flatMap((root) =>
+  const files = skillRoots.flatMap((root) =>
     walk(root, (filePath) =>
       filePath.endsWith(path.join("agents", "openai.yaml")) &&
       filePath.includes(`${path.sep}skills${path.sep}`)));
@@ -160,6 +217,32 @@ function auditSkills() {
     });
   }
   return summarize("skillYaml", items);
+}
+
+function auditSkillMd() {
+  const files = skillRoots.flatMap((root) =>
+    walk(root, (filePath) => path.basename(filePath) === "SKILL.md"));
+  const seen = new Set();
+  const items = [];
+  for (const filePath of files) {
+    if (seen.has(filePath)) continue;
+    seen.add(filePath);
+    try {
+      const text = fs.readFileSync(filePath, "utf8");
+      const fm = parseFrontmatter(text);
+      const name = fm ? frontmatterValue(fm, "name") : path.basename(path.dirname(filePath));
+      const description = fm ? frontmatterValue(fm, "description") : "";
+      const shortDescriptions = fm ? frontmatterShortDescriptions(fm) : [];
+      items.push({
+        filePath,
+        skill: name || path.basename(path.dirname(filePath)),
+        localized: hasCjk(description) && shortDescriptions.every((value) => hasCjk(value)),
+      });
+    } catch (error) {
+      items.push({ filePath, skill: path.basename(path.dirname(filePath)), localized: false, error: error.message });
+    }
+  }
+  return summarize("skillMd", items);
 }
 
 function collectAppIds() {
@@ -223,6 +306,7 @@ const report = {
     auditPluginJson(),
     auditMarketplaceJson(),
     auditSkills(),
+    auditSkillMd(),
     auditAppConnectors(),
     auditAppBundleScope(),
   ],

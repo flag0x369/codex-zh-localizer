@@ -53,6 +53,18 @@ try {
   const marketplacePath = path.join(fakeHome, ".codex", ".tmp", "plugins", ".agents", "plugins", "marketplace.json");
   const appJsonPath = path.join(pluginRoot, ".app.json");
   const skillYamlPath = path.join(pluginRoot, "skills", "github", "agents", "openai.yaml");
+  const vendorSkillYamlPath = path.join(
+    fakeHome,
+    ".codex",
+    "vendor_imports",
+    "skills",
+    "skills",
+    ".curated",
+    "playwright",
+    "agents",
+    "openai.yaml",
+  );
+  const skillMdPath = path.join(fakeHome, ".codex", "skills", "openai-docs", "SKILL.md");
   const appDirectoryPath = path.join(fakeHome, ".codex", "cache", "codex_app_directory", "fixture.json");
 
   writeJson(pluginJsonPath, {
@@ -81,6 +93,23 @@ try {
     '  default_prompt: "$github inspect PRs"',
     "",
   ].join("\n"));
+  write(vendorSkillYamlPath, [
+    "interface:",
+    '  display_name: "Playwright CLI Skill"',
+    '  short_description: "Automate real browsers from the terminal"',
+    '  default_prompt: "Automate this browser workflow."',
+    "",
+  ].join("\n"));
+  write(skillMdPath, [
+    "---",
+    "name: openai-docs",
+    "description: Reference OpenAI docs, Codex self-knowledge, and model migration guidance.",
+    "metadata:",
+    "  short-description: Reference OpenAI docs",
+    "---",
+    "# OpenAI Docs",
+    "",
+  ].join("\n"));
   writeJson(appDirectoryPath, {
     schema_version: 1,
     connectors: [
@@ -97,19 +126,28 @@ try {
 
   const localizedPlugin = JSON.parse(fs.readFileSync(pluginJsonPath, "utf8"));
   const localizedSkill = fs.readFileSync(skillYamlPath, "utf8");
+  const localizedVendorSkill = fs.readFileSync(vendorSkillYamlPath, "utf8");
+  const localizedSkillMd = fs.readFileSync(skillMdPath, "utf8");
   const localizedApp = JSON.parse(fs.readFileSync(appDirectoryPath, "utf8"));
   assert(hasCjk(localizedPlugin.interface.shortDescription), "plugin shortDescription should be Chinese");
   assert(hasCjk(localizedSkill), "skill YAML should contain Chinese");
+  assert(hasCjk(localizedVendorSkill), "vendor skill YAML should contain Chinese");
+  assert(hasCjk(localizedSkillMd), "SKILL.md description should contain Chinese");
   assert(hasCjk(localizedApp.connectors[0].description), "connector description should be Chinese");
 
   run(["restore-marketplace", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
   run(["restore-components", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
+  run(["restore-skill-md", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
 
   const restoredPlugin = JSON.parse(fs.readFileSync(pluginJsonPath, "utf8"));
   const restoredSkill = fs.readFileSync(skillYamlPath, "utf8");
+  const restoredVendorSkill = fs.readFileSync(vendorSkillYamlPath, "utf8");
+  const restoredSkillMd = fs.readFileSync(skillMdPath, "utf8");
   const restoredApp = JSON.parse(fs.readFileSync(appDirectoryPath, "utf8"));
   assert(!hasCjk(restoredPlugin.interface.shortDescription), "plugin restore should return English fixture");
   assert(!hasCjk(restoredSkill), "skill restore should return English fixture");
+  assert(!hasCjk(restoredVendorSkill), "vendor skill restore should return English fixture");
+  assert(!hasCjk(restoredSkillMd), "SKILL.md restore should return English fixture");
   assert(!hasCjk(restoredApp.connectors[0].description), "connector restore should return English fixture");
 
   console.log("Smoke test passed");

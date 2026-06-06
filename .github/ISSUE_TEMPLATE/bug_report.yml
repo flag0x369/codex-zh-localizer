@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a localization, audit, apply, or restore problem.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please remove any tokens, paths, usernames, or private plugin data before posting logs.
+  - type: input
+    id: codex-version
+    attributes:
+      label: Codex version
+      description: The Codex app version shown on your machine.
+      placeholder: "For example: 26.x.x"
+    validations:
+      required: false
+  - type: input
+    id: os-version
+    attributes:
+      label: macOS version
+      placeholder: "For example: macOS 15.x"
+    validations:
+      required: false
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Which command did you run?
+      render: shell
+      placeholder: "npx --yes github:flag0x369/codex-zh-localizer audit --strict"
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: Paste the relevant output after removing private information.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed tokens, cookies, private paths, account names, and other sensitive data.
+          required: true

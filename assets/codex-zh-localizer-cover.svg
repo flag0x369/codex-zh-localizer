@@ -1,6 +1,6 @@
 <svg width="1200" height="620" viewBox="0 0 1200 620" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Codex Zh Localizer preview</title>
-  <desc id="desc">A before and after preview showing Codex plugin metadata localized from English to Chinese.</desc>
+  <title id="title">Codex Zh Localizer install effect comparison</title>
+  <desc id="desc">A before and after install effect comparison showing Codex plugin metadata localized from English to Chinese.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="620" gradientUnits="userSpaceOnUse">
       <stop stop-color="#111827"/>
@@ -22,7 +22,7 @@
 
   <text x="80" y="112" fill="#E5E7EB" font-family="Inter, SF Pro Display, Arial, sans-serif" font-size="46" font-weight="750">Codex Zh Localizer</text>
   <text x="80" y="154" fill="#A7F3D0" font-family="Inter, SF Pro Display, Arial, sans-serif" font-size="23" font-weight="650">让 Codex 插件市场和插件详情页真正中文可读</text>
-  <text x="80" y="194" fill="#94A3B8" font-family="Inter, SF Pro Display, Arial, sans-serif" font-size="19">Unofficial, reversible Chinese localization for Codex plugin metadata.</text>
+  <text x="80" y="194" fill="#94A3B8" font-family="Inter, SF Pro Display, Arial, sans-serif" font-size="19">运行 apply 后：插件市场、技能说明和应用连接器从英文变成中文可读。</text>
 
   <g transform="translate(80 238)" filter="url(#shadow)">
     <rect width="470" height="274" rx="20" fill="#111827" stroke="#334155"/>
