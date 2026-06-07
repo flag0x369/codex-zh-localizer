@@ -31,15 +31,35 @@ const apply = args.has("--apply");
 const dryRun = args.has("--dry-run") || !apply;
 const force = args.has("--force");
 
+const seenPaths = new Set();
+
+function uniquePath(filePath) {
+  if (seenPaths.has(filePath)) return false;
+  seenPaths.add(filePath);
+  return true;
+}
+
+function ancestorCodexSubdirs(startDir, subdir) {
+  const roots = [];
+  let current = path.resolve(startDir);
+  const stopAt = path.dirname(homeDir);
+  while (current && current !== path.dirname(current)) {
+    roots.push(path.join(current, ".codex", subdir));
+    if (current === homeDir || current === stopAt) break;
+    current = path.dirname(current);
+  }
+  return roots;
+}
+
 const scanRoots = [
   path.join(homeDir, ".codex", "skills"),
-  path.join(projectRoot, ".codex", "skills"),
+  ...ancestorCodexSubdirs(projectRoot, "skills"),
   path.join(homeDir, ".codex", "plugins", "cache"),
   path.join(homeDir, ".codex", "vendor_imports", "skills"),
   path.join(homeDir, ".codex", ".tmp", "plugins"),
   path.join(homeDir, ".codex", ".tmp", "bundled-marketplaces", "openai-bundled"),
   path.join(homeDir, ".cache", "codex-runtimes", "codex-primary-runtime", "plugins", "openai-primary-runtime"),
-];
+].filter(uniquePath);
 
 const descriptionTranslations = {
   "agent-skills": "工程规则库：用于代码审查、实现质量、测试、发布准备、产品/工程取舍分析和 Agent 工作流纪律。",
@@ -60,12 +80,12 @@ const descriptionTranslations = {
   "llm-wiki-upgrade": "升级 llm-wiki 到最新版本，并按需刷新相关提取依赖。",
   "markitdown-wrapper": "把 PDF、DOCX、PPTX、XLSX、图片或 HTML 等本地文件转换成 Markdown。",
   "openai-docs": "参考 OpenAI 官方文档、Codex 自身知识、模型迁移和提示词升级指导。",
-  "openspec-apply-change": "根据 OpenSpec change 执行实现任务，适合开始或继续落地变更。",
-  "openspec-archive-change": "归档已经完成的 OpenSpec change，并把实现结果沉淀到规格中。",
+  "openspec-apply-change": "执行 OpenSpec 变更中的任务，适合开始或继续落地变更。",
+  "openspec-archive-change": "归档已经完成的 OpenSpec 变更，并把实现结果沉淀到规格中。",
   "openspec-explore": "进入探索模式，帮助梳理想法、调查问题并澄清需求。",
   "openspec-global": "用于正式产品/功能需求、行为变更、验收标准、规格、提案、设计、任务和变更治理。",
   "openspec-propose": "快速生成 OpenSpec 提案、设计、规格和任务文件，适合描述新变更。",
-  "openspec-sync-specs": "把 change 中的 delta spec 同步到主规格，但不归档 change。",
+  "openspec-sync-specs": "把变更中的增量规格同步到主规格，但不归档变更。",
   "planning-with-files": "用于长期、多步骤、需求模糊或研究量大的任务，把计划、进展和发现写入文件。",
   "plugin-creator": "创建和更新 Codex 插件目录、manifest、插件文件结构和个人 marketplace 条目。",
   "presentations": "创建、渲染和导出 PowerPoint PPTX 演示文稿。",
@@ -106,14 +126,58 @@ const descriptionTranslations = {
 };
 
 const shortDescriptionTranslations = {
+  "appkit-interop": "桥接 SwiftUI 与 AppKit，适配原生 macOS 行为",
+  "build-run-debug": "使用 shell-first 工作流构建和调试 macOS 应用",
+  "control-chrome": "控制用户 Chrome 浏览器",
+  "control-in-app-browser": "控制 Codex 内置浏览器",
+  "gh-fix-ci": "调试失败的 GitHub Actions 检查",
+  "ios-app-intents": "构建和调试 iOS App Intents 集成",
+  "ios-debugger-agent": "在 Simulator 上调试 iOS 应用",
+  "ios-ettrace-performance": "用 ETTrace 分析 iOS Simulator 性能轨迹",
+  "ios-memgraph-leaks": "捕获并验证 iOS Simulator 内存泄漏",
+  "openspec-apply-change": "执行 OpenSpec 变更中的任务",
+  "openspec-archive-change": "归档已完成的 OpenSpec 变更",
+  "openspec-explore": "进入探索模式，梳理想法并澄清需求",
+  "openspec-propose": "提出新变更并生成相关工件",
+  "openspec-sync-specs": "把变更中的增量规格同步到主规格",
   "skill-creator": "创建或更新 Codex Skill",
   "skill-installer": "从 openai/skills 或其它仓库安装精选技能",
   slack: "总结 Slack 线程并草拟帖子",
+  "slack-channel-summarization": "总结一个 Slack 频道",
   "slack-notification-triage": "分流和整理 Slack 通知信号",
   "slack-outgoing-message": "撰写最终外发 Slack 文案",
   "swiftpm-macos": "构建、运行和测试 macOS Swift 包",
   "swiftui-liquid-glass": "构建 SwiftUI Liquid Glass 功能",
   "swiftui-patterns": "构建原生 SwiftUI 场景、菜单、设置和窗口",
+  "ui-ux-pro-max": "UI/UX 设计智能库，支持搜索设计知识",
+  "view-refactor": "把 macOS SwiftUI 视图和场景重构为稳定结构",
+  "window-management": "定制 SwiftUI 窗口 chrome、拖拽区域、行为和位置",
+};
+
+const displayNameTranslations = {
+  "agent-skills": "工程规则库",
+  "andrej-karpathy-guidelines": "Karpathy 工程准则",
+  "appkit-interop": "AppKit 互操作",
+  "baoyu-url-to-markdown": "宝玉网页转 Markdown",
+  "build-run-debug": "构建 / 运行 / 调试",
+  "control-chrome": "Chrome 控制",
+  "control-in-app-browser": "内置浏览器控制",
+  "gh-fix-ci": "CI 调试",
+  "ios-app-intents": "iOS App Intents",
+  "ios-debugger-agent": "iOS 调试代理",
+  "ios-ettrace-performance": "iOS ETTrace 性能",
+  "ios-memgraph-leaks": "iOS 内存图泄漏",
+  "openspec-apply-change": "OpenSpec 应用变更",
+  "openspec-archive-change": "OpenSpec 归档变更",
+  "openspec-explore": "OpenSpec 探索",
+  "openspec-global": "OpenSpec 全局",
+  "openspec-propose": "OpenSpec 提案",
+  "openspec-sync-specs": "OpenSpec 同步规格",
+  "slack-channel-summarization": "频道总结",
+  "ui-ux-pro-max": "UI/UX 专业设计库",
+  "view-refactor": "视图重构",
+  "window-management": "窗口管理",
+  "youtube-transcript": "YouTube 字幕提取",
 };
 
 const phraseReplacements = [
@@ -215,8 +279,8 @@ Codex SKILL.md 描述中文化工具
 说明:
   默认 dry-run，不写入。
   中文化 SKILL.md frontmatter description、metadata.short-description，
-  以及 agents/openai.yaml 里的 short_description。
-  不修改技能 name、display_name 或正文执行规则。
+  以及 agents/openai.yaml 里的 display_name 和 short_description。
+  不修改技能 name 或正文执行规则。
 `);
 }
 
@@ -470,7 +534,8 @@ function planSkillMdFile(filePath) {
   let nextDescription = description;
   let nextShortDescription = shortDescription;
 
-  if (description && (force || !hasCjk(description) || /\bOriginal:/.test(description))) {
+  const hasPreferredDescription = descriptionTranslations[name] && descriptionTranslations[name] !== description;
+  if (description && (force || !hasCjk(description) || /\bOriginal:/.test(description) || hasPreferredDescription)) {
     nextDescription = localizeDescription(name, description);
     nextFrontmatter = setFrontmatterValue(nextFrontmatter, "description", nextDescription);
   }
@@ -490,13 +555,30 @@ function planSkillYamlFile(filePath) {
   const original = fs.readFileSync(filePath, "utf8");
   const name = path.basename(path.dirname(path.dirname(filePath)));
   if (onlyName && name !== onlyName) return null;
+  const displayName = yamlScalar(original, "display_name");
   const shortDescription = yamlScalar(original, "short_description");
-  if (!shortDescription) return null;
-  if (!force && hasCjk(shortDescription)) return null;
-  const nextDescription = localizeShortDescription(name, shortDescription);
-  const nextText = setYamlScalar(original, "short_description", nextDescription);
+  if (!shortDescription && !displayName) return null;
+  const nextDisplayName = displayNameTranslations[name] || displayName;
+  const hasPreferredShortDescription = shortDescriptionTranslations[name] &&
+    shortDescriptionTranslations[name] !== shortDescription;
+  const nextDescription = shortDescription &&
+    (force || !hasCjk(shortDescription) || /\bOriginal:/.test(shortDescription) || hasPreferredShortDescription)
+    ? localizeShortDescription(name, shortDescription)
+    : shortDescription;
+  let nextText = original;
+  if (displayName && nextDisplayName !== displayName) nextText = setYamlScalar(nextText, "display_name", nextDisplayName);
+  if (shortDescription && nextDescription !== shortDescription) {
+    nextText = setYamlScalar(nextText, "short_description", nextDescription);
+  }
   if (nextText === original) return null;
-  return { filePath, kind: "agents/openai.yaml", name, description: shortDescription, nextDescription, nextText };
+  return {
+    filePath,
+    kind: "agents/openai.yaml",
+    name,
+    description: shortDescription,
+    nextDescription: nextDescription || nextDisplayName,
+    nextText,
+  };
 }
 
 function ensureBackup(filePath, backupDir, manifest) {

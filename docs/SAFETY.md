@@ -14,7 +14,7 @@ Codex Zh Localizer 的目标是中文化 Codex 插件相关的本地元数据，
 | 不修改 `app.asar` | 避免 patch App bundle 带来的不可恢复风险 |
 | 不读取 token、cookie、私钥、密码 | 工具不需要用户凭据 |
 | 不安装后台进程 | 不默认写入 LaunchAgent、cron、shell hook |
-| 不翻译技能 `name`、正文、命令、路径、API key、配置 key | 避免破坏技能触发、执行规则和配置 |
+| 不翻译技能 `name`、技能正文、prompt 正文、命令、路径、API key、配置 key | 避免破坏触发、执行规则和配置 |
 
 ### 会写入哪里
 
@@ -30,6 +30,8 @@ Codex Zh Localizer 的目标是中文化 Codex 插件相关的本地元数据，
 | `~/.codex/skills/**/SKILL.md` | 用户和系统技能描述 |
 | `.codex/skills/**/SKILL.md` | 当前项目技能描述 |
 | `**/skills/**/agents/openai.yaml` | 技能列表和插件详情页技能展示描述 |
+| `~/.codex/prompts/*.md` | 用户 prompt 列表描述 |
+| `.codex/prompts/*.md` | 当前项目 prompt 列表描述 |
 
 这些路径可能随 Codex 版本变化。请以 `audit` 输出为准。
 
@@ -73,6 +75,12 @@ npx --yes github:flag0x369/codex-zh-localizer restore-components latest
 npx --yes github:flag0x369/codex-zh-localizer restore-skill-md latest
 ```
 
+恢复最近一次 prompt 描述补丁：
+
+```bash
+npx --yes github:flag0x369/codex-zh-localizer restore-prompts latest
+```
+
 ### 如何安全测试
 
 可以对临时 HOME 运行，不触碰真实 `~/.codex`：
@@ -91,6 +99,6 @@ npm run smoke
 
 Codex Zh Localizer localizes Codex plugin metadata while keeping changes auditable, reversible, and scoped.
 
-It does not modify `/Applications/Codex.app`, `app.asar`, app signing assets, credentials, background services, shell startup files, system settings, skill `name`, or skill body instructions.
+It does not modify `/Applications/Codex.app`, `app.asar`, app signing assets, credentials, background services, shell startup files, system settings, skill `name`, skill body instructions, or prompt body instructions.
 
-It only writes to local plugin and skill metadata caches, including `SKILL.md` descriptions and `skills/**/agents/openai.yaml` display descriptions, and creates backups before applying changes. Use `dry-run` and `audit --strict` before `apply`, and use the restore commands if you need to roll back.
+It only writes to local plugin, skill, and prompt metadata caches, including `SKILL.md` descriptions, `skills/**/agents/openai.yaml` display descriptions, and `.codex/prompts/*.md` descriptions, and creates backups before applying changes. Use `dry-run` and `audit --strict` before `apply`, and use the restore commands if you need to roll back.

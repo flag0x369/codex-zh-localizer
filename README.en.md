@@ -7,13 +7,13 @@
 ![Dry-run first](https://img.shields.io/badge/Safety-dry--run_first-2563EB.svg)
 ![No app.asar patch](https://img.shields.io/badge/Codex-no_app.asar_patch-7C3AED.svg)
 
-Codex Zh Localizer is an unofficial OpenAI Codex Chinese localization CLI. It localizes Codex plugin marketplace cards, plugin detail skills, skill picker descriptions, and app connector descriptions into Simplified Chinese while only touching reversible local plugin and skill metadata caches.
+Codex Zh Localizer is an unofficial OpenAI Codex Chinese localization CLI. It localizes Codex plugin marketplace cards, plugin detail skills, skill picker descriptions, prompt list descriptions, and app connector descriptions into Simplified Chinese while only touching reversible local plugin, skill, and prompt metadata caches.
 
 It targets users searching for Codex Chinese localization, OpenAI Codex plugin marketplace localization, Codex zh-CN, and Codex plugin metadata translation.
 
 ![Codex Zh Localizer install effect comparison: plugin marketplace, skill descriptions, and app connectors become readable in Chinese](assets/codex-zh-localizer-cover.svg)
 
-Install effect comparison: after running `apply`, Codex plugin marketplace cards, skill descriptions, skill picker descriptions, and app connector copy become readable in Chinese. The illustration contains no real account, path, or private workspace data.
+Install effect comparison: after running `apply`, Codex plugin marketplace cards, skill descriptions, skill picker descriptions, prompt descriptions, and app connector copy become readable in Chinese. The illustration contains no real account, path, or private workspace data.
 
 ```bash
 npx --yes github:flag0x369/codex-zh-localizer dry-run
@@ -29,6 +29,7 @@ Codex has a growing plugin marketplace, but plugin names, skill descriptions, an
 | Plugin marketplace cards are in English | Localizes plugin names, summaries, details, and example prompts |
 | Plugin detail skills are hard to scan | Localizes skill names, descriptions, and default prompts |
 | Skill picker descriptions are still English | Localizes display descriptions in `SKILL.md` and `agents/openai.yaml` while preserving `name` and body |
+| Prompt list descriptions are still English | Localizes `.codex/prompts/*.md` `description` while preserving filenames and bodies |
 | App connector descriptions are English | Localizes app names and connector descriptions |
 | Codex updates or new skills reset metadata | Rerun `apply` to relocalize supported metadata |
 | You care about safety | Dry-run by default, backups before writes, restore commands included |
@@ -70,6 +71,7 @@ npx --yes github:flag0x369/codex-zh-localizer apply
 | Plugin marketplace cards | Yes | `plugin.json` and marketplace JSON |
 | Plugin detail skills | Yes | `skills/*/agents/openai.yaml` |
 | Skill picker descriptions | Yes | `SKILL.md` frontmatter `description` / `metadata.short-description` and `agents/openai.yaml` `short_description` |
+| Prompt list descriptions | Yes | `.codex/prompts/*.md` frontmatter `description` |
 | Plugin detail apps | Yes | app connector directory cache |
 | Built-in Codex frontend buttons and menus | Not yet | Usually inside app bundle / `app.asar` |
 | Skill `name`, body, brand names, commands, API keys | Preserved | Avoid changing Codex skill triggering, execution, and config |
@@ -79,8 +81,9 @@ Example audit result:
 ```text
 pluginJson: 190/190 localized
 marketplaceJson: 3/3 localized
-skillYaml: 607/607 localized
-skillMd: 656/656 localized
+skillYaml: 608/608 localized
+skillMd: 666/666 localized
+promptMd: 5/5 localized
 appConnectors: 140/140 localized
 ```
 
@@ -104,6 +107,9 @@ npx --yes github:flag0x369/codex-zh-localizer restore-components latest
 
 # Restore the latest skill-description backup
 npx --yes github:flag0x369/codex-zh-localizer restore-skill-md latest
+
+# Restore the latest prompt-description backup
+npx --yes github:flag0x369/codex-zh-localizer restore-prompts latest
 ```
 
 Advanced:
@@ -126,15 +132,15 @@ This tool does not:
 | Modify `app.asar` | Avoid integrity issues |
 | Read tokens, cookies, private keys, or passwords | It does not touch credentials |
 | Install background services | No LaunchAgent, cron, or shell hook by default |
-| Translate skill `name`, skill body, brand names, or commands | Avoid changing Codex skill triggering, execution, and config |
+| Translate skill `name`, skill body, prompt filenames, prompt bodies, brand names, or commands | Avoid changing Codex triggering, execution, and config |
 
-Every `apply` creates backups first. `restore-marketplace`, `restore-components`, and `restore-skill-md` restore by patch type, so backup streams do not get mixed.
+Every `apply` creates backups first. `restore-marketplace`, `restore-components`, `restore-skill-md`, and `restore-prompts` restore by patch type, so backup streams do not get mixed.
 
 ## Why Not Patch app.asar
 
 Codex built-in frontend UI text lives inside app bundle resources, including `app.asar`. Patching the app bundle can affect macOS app signing, Codex auto-updates, integrity checks, and recoverability after upgrades.
 
-This project intentionally takes the safer path: localize reversible plugin marketplace, skill description, and app connector metadata only.
+This project intentionally takes the safer path: localize reversible plugin marketplace, skill description, prompt description, and app connector metadata only.
 
 ## FAQ
 
@@ -158,6 +164,7 @@ Yes:
 npx --yes github:flag0x369/codex-zh-localizer restore-marketplace latest
 npx --yes github:flag0x369/codex-zh-localizer restore-components latest
 npx --yes github:flag0x369/codex-zh-localizer restore-skill-md latest
+npx --yes github:flag0x369/codex-zh-localizer restore-prompts latest
 ```
 
 ### Why is some text still English?

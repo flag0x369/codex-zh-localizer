@@ -69,6 +69,7 @@ try {
     "openai.yaml",
   );
   const skillMdPath = path.join(fakeHome, ".codex", "skills", "openai-docs", "SKILL.md");
+  const promptMdPath = path.join(fakeHome, ".codex", "prompts", "opsx-apply.md");
   const appDirectoryPath = path.join(fakeHome, ".codex", "cache", "codex_app_directory", "fixture.json");
 
   writeJson(pluginJsonPath, {
@@ -114,6 +115,15 @@ try {
     "# OpenAI Docs",
     "",
   ].join("\n"));
+  write(promptMdPath, [
+    "---",
+    "description: Implement tasks from an OpenSpec change (Experimental)",
+    "argument-hint: command arguments",
+    "---",
+    "",
+    "Implement tasks from an OpenSpec change.",
+    "",
+  ].join("\n"));
   writeJson(appDirectoryPath, {
     schema_version: 1,
     connectors: [
@@ -132,27 +142,32 @@ try {
   const localizedSkill = fs.readFileSync(skillYamlPath, "utf8");
   const localizedVendorSkill = fs.readFileSync(vendorSkillYamlPath, "utf8");
   const localizedSkillMd = fs.readFileSync(skillMdPath, "utf8");
+  const localizedPromptMd = fs.readFileSync(promptMdPath, "utf8");
   const localizedApp = JSON.parse(fs.readFileSync(appDirectoryPath, "utf8"));
   assert(hasCjk(localizedPlugin.interface.shortDescription), "plugin shortDescription should be Chinese");
   assert(hasCjk(localizedSkill), "skill YAML should contain Chinese");
   assert(hasCjk(localizedVendorSkill), "vendor skill YAML should contain Chinese");
   assert(hasCjk(localizedSkillMd), "SKILL.md description should contain Chinese");
   assert(!hasOriginalSuffix(localizedSkillMd), "SKILL.md description should not expose Original suffix");
+  assert(hasCjk(localizedPromptMd), "prompt description should contain Chinese");
   assert(hasCjk(localizedApp.connectors[0].description), "connector description should be Chinese");
 
   run(["restore-marketplace", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
   run(["restore-components", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
   run(["restore-skill-md", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
+  run(["restore-prompts", "latest", "--home", fakeHome, "--backup-root", backupRoot]);
 
   const restoredPlugin = JSON.parse(fs.readFileSync(pluginJsonPath, "utf8"));
   const restoredSkill = fs.readFileSync(skillYamlPath, "utf8");
   const restoredVendorSkill = fs.readFileSync(vendorSkillYamlPath, "utf8");
   const restoredSkillMd = fs.readFileSync(skillMdPath, "utf8");
+  const restoredPromptMd = fs.readFileSync(promptMdPath, "utf8");
   const restoredApp = JSON.parse(fs.readFileSync(appDirectoryPath, "utf8"));
   assert(!hasCjk(restoredPlugin.interface.shortDescription), "plugin restore should return English fixture");
   assert(!hasCjk(restoredSkill), "skill restore should return English fixture");
   assert(!hasCjk(restoredVendorSkill), "vendor skill restore should return English fixture");
   assert(!hasCjk(restoredSkillMd), "SKILL.md restore should return English fixture");
+  assert(!hasCjk(restoredPromptMd), "prompt restore should return English fixture");
   assert(!hasCjk(restoredApp.connectors[0].description), "connector restore should return English fixture");
 
   console.log("Smoke test passed");
