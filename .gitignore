@@ -8,3 +8,6 @@ npm-debug.log*
 codex-plugin-marketplace-zh-backups/
 coverage/
 dist/
+!bin/
+!bin/codex-prompt-md-zh.mjs
+!bin/sanitize-codex-screenshot.mjs

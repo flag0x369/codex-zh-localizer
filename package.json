@@ -1,7 +1,7 @@
 {
   "name": "codex-zh-localizer",
   "version": "0.1.0",
-  "description": "Unofficial Chinese localization CLI for OpenAI Codex plugin marketplace, skills, skill picker descriptions, and app connectors.",
+  "description": "Unofficial Chinese localization CLI for OpenAI Codex plugin marketplace, skills, prompts, and app connectors.",
   "type": "module",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "docs/"
   ],
   "scripts": {
-    "check": "node --check bin/codex-zh.mjs && node --check bin/codex-zh-audit.mjs && node --check bin/codex-zh-smoke-test.mjs && node --check bin/codex-plugin-marketplace-zh.mjs && node --check bin/codex-plugin-components-zh.mjs && node --check bin/codex-skill-md-zh.mjs",
+    "check": "node --check bin/codex-zh.mjs && node --check bin/codex-zh-audit.mjs && node --check bin/codex-zh-smoke-test.mjs && node --check bin/codex-plugin-marketplace-zh.mjs && node --check bin/codex-plugin-components-zh.mjs && node --check bin/codex-skill-md-zh.mjs && node --check bin/codex-prompt-md-zh.mjs && node --check bin/sanitize-codex-screenshot.mjs",
     "audit": "node bin/codex-zh.mjs audit",
     "dry-run": "node bin/codex-zh.mjs dry-run",
     "apply": "node bin/codex-zh.mjs apply",

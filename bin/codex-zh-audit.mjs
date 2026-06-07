@@ -28,13 +28,18 @@ const codexAppResources = "/Applications/Codex.app/Contents/Resources";
 
 const skillRoots = [
   path.join(homeDir, ".codex", "skills"),
-  path.join(projectRoot, ".codex", "skills"),
+  ...ancestorCodexSubdirs(projectRoot, "skills"),
   path.join(homeDir, ".codex", "plugins", "cache"),
   path.join(homeDir, ".codex", "vendor_imports", "skills"),
   path.join(homeDir, ".codex", ".tmp", "plugins"),
   path.join(homeDir, ".codex", ".tmp", "bundled-marketplaces", "openai-bundled"),
   path.join(homeDir, ".cache", "codex-runtimes", "codex-primary-runtime", "plugins", "openai-primary-runtime"),
-];
+].filter(uniquePathFactory());
+
+const promptRoots = [
+  path.join(homeDir, ".codex", "prompts"),
+  ...ancestorCodexSubdirs(projectRoot, "prompts"),
+].filter(uniquePathFactory());
 
 function usage() {
   console.log(`
@@ -48,8 +53,29 @@ Codex 中文化覆盖率审计
 
 说明:
   只读扫描，不修改任何 Codex 文件。
-  统计插件卡片 JSON、技能 agents/openai.yaml、SKILL.md 描述、应用连接器缓存的中文覆盖情况。
+  统计插件卡片 JSON、技能 agents/openai.yaml、SKILL.md 描述、prompt 描述、应用连接器缓存的中文覆盖情况。
 `);
+}
+
+function uniquePathFactory() {
+  const seen = new Set();
+  return (filePath) => {
+    if (seen.has(filePath)) return false;
+    seen.add(filePath);
+    return true;
+  };
+}
+
+function ancestorCodexSubdirs(startDir, subdir) {
+  const roots = [];
+  let current = path.resolve(startDir);
+  const stopAt = path.dirname(homeDir);
+  while (current && current !== path.dirname(current)) {
+    roots.push(path.join(current, ".codex", subdir));
+    if (current === homeDir || current === stopAt) break;
+    current = path.dirname(current);
+  }
+  return roots;
 }
 
 if (args.has("--help") || args.has("-h")) {
@@ -250,6 +276,30 @@ function auditSkillMd() {
   return summarize("skillMd", items);
 }
 
+function auditPromptMd() {
+  const files = promptRoots.flatMap((root) =>
+    walk(root, (filePath) => filePath.endsWith(".md")));
+  const seen = new Set();
+  const items = [];
+  for (const filePath of files) {
+    if (seen.has(filePath)) continue;
+    seen.add(filePath);
+    try {
+      const text = fs.readFileSync(filePath, "utf8");
+      const fm = parseFrontmatter(text);
+      const description = fm ? frontmatterValue(fm, "description") : "";
+      items.push({
+        filePath,
+        prompt: path.basename(filePath, ".md"),
+        localized: isLocalizedDisplayText(description),
+      });
+    } catch (error) {
+      items.push({ filePath, prompt: path.basename(filePath, ".md"), localized: false, error: error.message });
+    }
+  }
+  return summarize("promptMd", items);
+}
+
 function collectAppIds() {
   const ids = new Map();
   for (const root of roots) {
@@ -312,6 +362,7 @@ const report = {
     auditMarketplaceJson(),
     auditSkills(),
     auditSkillMd(),
+    auditPromptMd(),
     auditAppConnectors(),
     auditAppBundleScope(),
   ],
@@ -333,7 +384,8 @@ if (asJson) {
     }
     console.log(`- ${section.name}: ${section.localized}/${section.total} 已中文化，待处理 ${section.pending}`);
     for (const sample of section.samples) {
-      const label = sample.plugin || sample.marketplace || sample.skill || sample.app || sample.connector || sample.filePath;
+      const label = sample.plugin || sample.marketplace || sample.skill || sample.prompt ||
+        sample.app || sample.connector || sample.filePath;
       console.log(`  · ${label}`);
     }
   }

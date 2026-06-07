@@ -9,6 +9,7 @@
 - 插件市场卡片中文化
 - 插件详情页技能中文化
 - 技能选择列表 `SKILL.md` / `agents/openai.yaml` 描述中文化
+- Prompt 列表描述中文化
 - 插件详情页应用连接器中文化
 - dry-run、备份、恢复
 - 临时 HOME smoke test
@@ -36,6 +37,7 @@
 - Plugin marketplace card localization
 - Plugin detail skill localization
 - Skill picker `SKILL.md` / `agents/openai.yaml` description localization
+- Prompt list description localization
 - Plugin detail app connector localization
 - Dry-run, backup, and restore
 - Temporary HOME smoke test
